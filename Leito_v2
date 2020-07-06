@@ -1,0 +1,619 @@
+//// Leito 2020, Código para usar en Processing 3 y la librería Android. 
+//Objetos realizados con lo que tenemos a la mano.
+// Objetos y código libre para modificaciones.
+// Todolulo
+// más información del proyecto: https://juanleonsarmiento.com/portfolio/compa/
+
+
+
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.os.PowerManager;
+import android.os.Vibrator;
+
+///////////////////////////////////
+Vibrator vibrator;
+Context context;
+SensorManager manager;
+Sensor sensor;
+AccelerometerListener listener;
+PowerManager pm;
+PowerManager.WakeLock wl;
+///////////////////////////////////
+float ax, ay, az;
+float tiempo ;
+int esp = 0;
+
+boolean ejer = false;
+boolean pierna = false;
+boolean brazo = false;
+boolean selector = false;
+boolean serie = false;
+boolean sec_a = false;
+boolean sec_b = false;
+boolean sec_c = false;
+boolean sec_d = false;
+boolean sec_e = false;
+boolean sec_f = false;
+boolean sec_g = false;
+boolean sec_h = false;
+boolean sec_i = false;
+boolean sec_j = false;
+
+////---------------------------
+int cant = 10; /////// repeticiones de ejercicio 
+float v = 2.3; /////// velocidad del contador 
+float v_2 = 2; /////// velocidad del contador 
+int rutina_pierna = 0;
+int rutina_brazo = 0;
+int anc;
+int tiem; //////////// tiempo de espera menu inicial
+float a = -3.1; ///// velocidad del contador ejercicio piernas
+int series; ///////// repeticiones de ejercicio 
+int[] valx; ///////// array de cuadrados 
+////////----------------------------
+color c1;
+color c2;
+float r_a;
+float r_b;
+color inv;
+float colore;
+
+/////////--------------------------------------- =)
+void setup() {
+  fullScreen();
+  colorMode(HSB, 100);
+  orientation(PORTRAIT);
+
+  ///////////////////////------ iniciamos lectura de sensores celular o tablet 
+  context = getActivity();
+  manager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
+  sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+  listener = new AccelerometerListener();
+  manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME);
+  pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+  wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "My Tag");
+  wl.acquire();
+  vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+
+  ///////////---------------------------------------------
+  anc = width / cant-10;
+  textFont(createFont("SansSerif", 30 * displayDensity));
+  rectMode (CENTER);
+  valx = new int[cant];
+
+  float modulo = float (width) / cant;
+  for ( int i = 0; i < cant; i ++ ) {
+    float x = i * modulo ;
+    float xc = x + modulo / 2; 
+    valx[i] = int (xc);
+  }
+
+  ////////-------------------------------------- colores iniales de fondo
+  r_a = random(100);
+  r_b = random(100);
+  c1= color(r_a, 50, 100);
+  c2= color(r_b, 50, 100);
+}
+
+void draw() {
+
+  noStroke();
+  float saturacion = map(ay, -9.2, 9.2, 0, 100);
+  float saturacion_b = map(ay, -9.2, 9.2, 0, 50);
+  float c = lerp(0, saturacion, .1);
+  float grados = map(ay, -9.2, 9.2, 180, 0);
+
+
+  if (ejer== false) {
+
+    for (int y = 0; y < height; y++) {
+      float n = map ( y, 0, height, 0, 1);
+      color newc = lerpColor( c1, c2, n, 1);
+      inv = lerpColor( c2, c1, n, 1);
+      stroke(newc);
+      line(0, y, width, y);
+      n =  n + 0.01;
+    }
+    fill(c, tiem, 100);
+    ellipse(width/2, height/2, 400, 400);
+    pushMatrix();
+    textSize(70);
+    textAlign(CENTER);
+    fill(20);
+    translate(width/2, height/2+15);
+    text( "Inicio", 0, 0);
+    popMatrix();
+
+    pushMatrix();
+    fill(c, tiem, 100);
+    textSize(35);
+    translate(width/2, height-100);
+    text( "Leito_2020", 0, 0);
+    popMatrix();
+
+    pushMatrix();
+    translate(width/2, height/2+height/3);
+    textSize(40);
+    fill(30);
+    String s = "-Para usar este programa, primero debes sujetar el celular a una extremidad y tocar la pantalla.";
+
+    text(s, 0, 0, 500, 400);
+    popMatrix();
+    if (tiem < 60) {
+      tiem = tiem + 1; ////////////////////////////////////////////////// tiempo de espera para habilitar el botón
+    }
+    if (mouseX > width/2-200 && mouseX < width/2+200 && 
+      mouseY > height/2-200 && mouseY < height/2+200 && tiem >50) {
+      if (mousePressed) {
+        noStroke();
+        background(100);
+        tiem = 0;
+        ejer = true; //// no se esta usando ahora
+        serie = true;
+      }
+    }
+  }
+
+  if (serie == true) {
+
+    /////-----------------------------------------------arcos mov
+    pushMatrix();
+    strokeWeight(3);
+    noFill();
+    translate(width/2, height/2);
+    for (float r = 450; r < width-100; r = r + 80) {
+      float theta = map(sin((r/4.3f + frameCount)*0.025), -1, 1, 0, PI);
+      float hue = map(theta, 0, PI, r_a, r_b);
+      stroke(hue,50,100);
+      arc(0, 0, r, r, PI, PI+theta);
+      rotate(3.15);
+       
+      arc(0, 0, r, r, PI, PI+theta);
+    }
+    popMatrix();
+    ///////-----------------------------------------------------
+    noStroke();
+    fill(15, 4);
+    rect( width/2, height/2, width, height);
+    fill(c, 50, 100);
+    ellipse(width/2, height/2, 250, 250);
+    pushMatrix();
+    textSize(60);
+    textAlign(CENTER);
+    fill(20);
+    translate(width/2, height/2);
+    series = int(map ( a, -3.15, 3.15, 1, 6));
+    text( "Rep:"+series, 0, 10);
+    popMatrix();
+
+    if (mouseX > width/2-200 && mouseX < width/2+200 && 
+      mouseY > height/2-200 && mouseY < height/2+200) {
+      if (mousePressed) {
+        a = atan2(mouseY-height/2, mouseX-width/2);
+      }
+    }
+    pushMatrix();
+    translate(width/2, height/2);
+    rotate(a);
+    fill(c1);
+    ellipse(160, 0, 60, 60);
+    popMatrix();
+    rect(width/2, height-125, width, 200);
+    fill(20);
+    text( "Iniciar", width/2, height-100);
+    if (mouseX > width/2-200 && mouseX < width/2+200 && 
+      mouseY > height-200 && mouseY < height+100) {
+      if (mousePressed) {
+        selector = true;
+        serie= false;
+        background(100);
+      }
+    }
+  }
+////--------------------------------------------lineas de fondo
+  if ( selector == true) {
+    for (int y = 0; y < height; y= y+15) {
+      float n = map ( y, 0, height, 0, 1);
+      color newc = lerpColor( c1, c2, n, 1);
+      inv = lerpColor( c2, c1, n, 1);
+      strokeWeight(4);
+      stroke(newc);
+      line(0, y, width, y);
+      n =  n + 0.01;
+      noStroke();
+    }
+    fill(c1);
+    ellipse(width/2, height/2-300, 300, 300);
+    pushMatrix();
+    textSize(70);
+    textAlign(CENTER);
+    fill(20);
+    translate(width/2, height/2-285);
+    text( "Brazos", 0, 0);
+    popMatrix();
+    fill(c2);
+    ellipse(width/2, height/2+300, 310, 300);
+    pushMatrix();
+    textSize(70);
+    textAlign(CENTER);
+    fill(20);
+    translate(width/2, height/2+315);
+    text( "Piernas", 0, 0);
+    popMatrix();
+    if (mouseX > width/2-150 && mouseX < width/2+150 && 
+      mouseY > height/2-450 && mouseY < height/2-250) {
+      if (mousePressed && rutina_brazo != series) {
+        noStroke();
+        tiempo = height;
+        brazo = true;
+        sec_a = true;
+        selector = false;
+        background(100);
+      }
+    }
+    if (mouseX > width/2-150 && mouseX < width/2+150 && 
+      mouseY > height/2+250 && mouseY < height/2+450) { 
+      if (mousePressed && rutina_pierna != series) {
+        noStroke();
+        tiempo = height;
+        pierna = true;
+        sec_a = true;
+        selector = false;
+        background(100);
+      }
+    }
+  }
+  ///////////////////////////////////// programa piernas, inclinación de 40 a 90 grados
+  if (pierna == true) {
+    if ( grados > 40 && grados < 100) {
+      ///////-----------------------------------------
+      if ( sec_a == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[0], tiempo, anc, 20);
+        tiempo = tiempo - v;
+
+        if (tiempo < 0) {
+          vibrator.vibrate(200);
+          esp = 1;
+          sec_a = false;
+          tiempo = height;
+        }
+      }
+      ///////-----------------------------------------
+      if ( sec_b == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[1], tiempo, anc, 20);
+        tiempo = tiempo - v;
+
+        if (tiempo < 0) {
+          vibrator.vibrate(200);
+          esp = 2;
+          sec_b = false;
+          tiempo = height;
+        }
+      }
+      ///////-----------------------------------------
+      if ( sec_c == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[2], tiempo, anc, 20);
+        tiempo = tiempo - v;
+
+        if (tiempo <0) {
+          vibrator.vibrate(200);
+          esp = 3;
+          sec_c = false;
+          tiempo = height;
+        }
+      }
+      ///////-----------------------------------------
+      if ( sec_d == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[3], tiempo, anc, 20);
+        tiempo = tiempo - v;
+
+        if (tiempo <0) {
+          vibrator.vibrate(200);
+          esp = 4;
+          sec_d = false;
+          tiempo = height;
+        }
+      }
+      ///////-----------------------------------------
+      if ( sec_e == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[4], tiempo, anc, 20);
+        tiempo = tiempo - v;
+
+        if (tiempo <0) {
+          vibrator.vibrate(200);
+          esp = 5;
+          sec_e = false;
+          tiempo = height;
+        }
+      }
+      ///////-----------------------------------------
+      if ( sec_f == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[5], tiempo, anc, 20);
+        tiempo = tiempo - v;
+
+        if (tiempo <0) {
+          vibrator.vibrate(200);
+          esp = 6;
+          sec_f = false;
+          tiempo = height;
+        }
+      }
+      ///////-----------------------------------------
+      if ( sec_g == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[6], tiempo, anc, 20);  
+        tiempo = tiempo - v;
+
+        if (tiempo < 0) {
+          vibrator.vibrate(200);
+          esp = 7; 
+          sec_g = false; 
+          tiempo = height;
+        }
+      }
+      ///////-----------------------------------------
+      if ( sec_h == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[7], tiempo, anc, 20); 
+        tiempo = tiempo - v;
+
+        if (tiempo <0) {
+          vibrator.vibrate(200);
+          esp = 8; 
+          sec_h = false; 
+          tiempo = height;
+        }
+      }
+      ///////-----------------------------------------
+      if ( sec_i == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[8], tiempo, anc, 20); 
+        tiempo = tiempo - v;
+
+        if (tiempo <0) {
+          vibrator.vibrate(200);
+          esp = 9; 
+          sec_i = false; 
+          tiempo = height;
+        }
+      }
+      ///////-----------------------------------------
+      if ( sec_j == true) {
+        fill(saturacion, 100, 100);
+        rect(valx[9], tiempo, anc, 20);  
+        tiempo = tiempo - v;
+
+        if (tiempo <0) {
+          vibrator.vibrate(200);
+          esp = 10; 
+          rutina_pierna = rutina_pierna + 1;
+          sec_j = false; 
+          tiempo = height;
+        }
+      }
+    }
+
+    if ( grados > 0 && grados < 20) {
+
+      if (sec_a == false && esp ==1) {
+
+        sec_b = true;
+      }
+      if (sec_b == false && esp == 2) {
+
+        sec_c = true;
+      }
+      if (sec_c == false && esp == 3) {
+
+        sec_d = true;
+      }
+
+      if (sec_d == false && esp == 4) {
+
+        sec_e = true;
+      }
+      if (sec_e == false && esp == 5) {
+
+        sec_f = true;
+      }
+      if (sec_f == false && esp == 6) {
+
+        sec_g = true;
+      }
+      if (sec_g == false && esp == 7) {
+
+        sec_h = true;
+      }
+      if (sec_h == false && esp == 8) {
+
+        sec_i = true;
+      }
+      if (sec_i == false && esp == 9) {
+
+        sec_j = true;
+      }
+    }
+    if (sec_j == false && esp == 10) {
+      fill(c, 50, 100);
+      ellipse(width/2, height/2, 300, 300);
+      pushMatrix();
+      textSize(70);
+      textAlign(CENTER);
+      fill(20);
+      translate(width/2, height/2+15);
+      text( "Serie"+rutina_pierna, 0, 0);
+      popMatrix();
+      if (mouseX > width/2-200 && mouseX < width/2+200 && 
+        mouseY > height/2-200 && mouseY < height/2+200) {
+        if (mousePressed) {
+          esp = 0;
+          sec_a = true;
+          background(100);
+        }
+      }
+    }
+    ///////-------------------------------------------------------------final
+    if ( rutina_pierna == series && rutina_brazo != series) {
+      fill(c, 50, 100);
+      ellipse(width/2, height/2, 400, 400);
+      pushMatrix();
+      textSize(70);
+      textAlign(CENTER);
+      fill(20);
+      translate(width/2, height/2+15);
+      // rotate(HALF_PI);
+      text( "Terminaste", 0, 0);
+      popMatrix();
+      if (mouseX > width/2-200 && mouseX < width/2+200 && 
+        mouseY > height/2-200 && mouseY < height/2+200) {
+        if (mousePressed) {
+          esp = 0;
+          pierna = false;
+          selector = true;
+          background(100);
+        }
+      }
+    }
+    ///////////////////// programa brazos, inclinación de 40 a -5 grados
+    if (rutina_brazo == series && rutina_pierna == series) {
+      fill(c, 50, 100);
+      ellipse(width/2, height/2, 400, 400);
+      pushMatrix();
+      textSize(70);
+      textAlign(CENTER);
+      fill(20);
+      translate(width/2, height/2+15);
+      text( "Terminaste", 0, 0);
+      popMatrix();
+      if (mouseX > width/2-200 && mouseX < width/2+200 && 
+        mouseY > height/2-200 && mouseY < height/2+200) {
+        if (mousePressed) {
+          brazo = false;
+          pierna = false;
+          rutina_pierna = 0;
+          rutina_brazo = 0;
+          ejer = false;
+        }
+      }
+    }
+  }
+  if (brazo == true ) {
+
+
+    if ( grados > -6 && grados < 20) {
+
+      if ( sec_a == true) {
+        float cor = map(tiempo, height, height/2, 0, 50);
+        float cor_b = map(tiempo, height, height/2, 50, 0);
+        float tamano = map(tiempo, height, height/2+300, 20, 300);
+        fill(cor, 50, 100);
+        ellipse(width/2, tiempo, tamano, tamano);
+        fill(cor_b, 80, 100);
+        textSize(120);
+        text( esp, width/2, height/2+50);
+        tiempo = tiempo - v_2;
+
+        if (tiempo <= height/2) {
+
+          vibrator.vibrate(200);
+          esp = esp + 1;
+
+          tiempo =  height;
+          if (esp == 10) {
+            rutina_brazo = rutina_brazo + 1; ///// cantidad de series
+          }
+          sec_a = false;
+        }
+      }
+    }
+
+    if ( grados > 40 && grados < 70 && sec_a == false) {
+      background(100);
+      sec_a = true;
+    }
+
+    if ( esp == 10) {
+      sec_a = false; 
+      fill(c, 50, 100);
+      ellipse(width/2, height/2, 300, 300);
+      pushMatrix();
+      textSize(70);
+      textAlign(CENTER);
+      fill(20);
+      translate(width/2, height/2+15);
+      text( "Serie"+rutina_brazo, 0, 0);
+      popMatrix();
+      if (mouseX > width/2-200 && mouseX < width/2+200 && 
+        mouseY > height/2-200 && mouseY < height/2+200) {
+        if (mousePressed) {
+          esp = 0;
+          sec_a = true;
+        }
+      }
+    }
+
+    if ( rutina_brazo == series && rutina_pierna != series) {
+      fill(c, 50, 100);
+      ellipse(width/2, height/2, 400, 400);
+      pushMatrix();
+      textSize(70);
+      textAlign(CENTER);
+      fill(20);
+      translate(width/2, height/2+15);
+      text( "Terminaste", 0, 0);
+      popMatrix();
+      if (mouseX > width/2-200 && mouseX < width/2+200 && 
+        mouseY > height/2-200 && mouseY < height/2+200) {
+        if (mousePressed) {
+          esp = 0;
+          brazo = false;
+          selector = true;
+          esp= 0;
+          background(100);
+        }
+      }
+    }
+
+    /////////////////////---------------------------------------------------- reinicia el menu de series
+    if (rutina_brazo == series && rutina_pierna == series) {
+      fill(c, 50, 100);
+      ellipse(width/2, height/2, 400, 400);
+      pushMatrix();
+      textSize(70);
+      textAlign(CENTER);
+      fill(20);
+      translate(width/2, height/2+15);
+      text( "Terminaste", 0, 0);
+      popMatrix();
+      if (mouseX > width/2-200 && mouseX < width/2+200 && 
+        mouseY > height/2-200 && mouseY < height/2+200) {
+        if (mousePressed) {
+          brazo = false;
+          pierna = false;
+          rutina_pierna = 0;
+          rutina_brazo = 0;
+          ejer = false;
+        }
+      }
+    }
+  }
+}
+class AccelerometerListener implements SensorEventListener {
+  public void onSensorChanged(SensorEvent event) {
+    ax = event.values[0];
+    ay = event.values[1];
+    az = event.values[2];
+  }
+  public void onAccuracyChanged(Sensor sensor, int accuracy) {
+  }
+}
